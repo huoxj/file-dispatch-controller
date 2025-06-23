@@ -4,7 +4,6 @@ import com.fdc.service.AuthService;
 import com.fdc.vo.auth.OfflineLoginFormVO;
 import com.fdc.vo.auth.OnlineLoginFormVO;
 import com.fdc.vo.ResponseVO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;

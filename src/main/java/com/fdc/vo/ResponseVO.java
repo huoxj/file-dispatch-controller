@@ -20,11 +20,11 @@ public class ResponseVO<T> implements Serializable {
     private T result;
 
     public static <T> ResponseVO<T> buildSuccess(T result) {
-        return new ResponseVO<T>("200", null, result);
+        return new ResponseVO<>("200", null, result);
     }
 
     public static <T> ResponseVO<T> buildFailure(String msg) {
-        return new ResponseVO<T>("400", msg, null);
+        return new ResponseVO<>("400", msg, null);
     }
 
 }
