@@ -18,18 +18,16 @@ import java.util.Optional;
 @Service
 public class AuthServiceImpl implements AuthService {
 
-    private final OnlineAuthAdapter onlineAuthAdapter;
+    @Autowired
+    @Qualifier("template")
+    private OnlineAuthAdapter onlineAuthAdapter;
 
-    private final FileRepository fileRepository;
-    private final ShareRepository shareRepository;
+    @Autowired
+    private FileRepository fileRepository;
 
-    public AuthServiceImpl(@Qualifier("template") OnlineAuthAdapter onlineAuthAdapter,
-                           @Autowired FileRepository fileRepository,
-                           @Autowired ShareRepository shareRepository) {
-        this.onlineAuthAdapter = onlineAuthAdapter;
-        this.fileRepository = fileRepository;
-        this.shareRepository = shareRepository;
-    }
+    @Autowired
+    private ShareRepository shareRepository;
+
 
     @Override
     public String authOnline(OnlineLoginFormVO loginForm, String fileId) {

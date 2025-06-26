@@ -23,6 +23,8 @@ public class File {
     @Column(name = "url")
     private String url;
 
+    // Base64 编码的 AES128 密钥
+    // 或者 Base64 编码的压缩包密码
     @Basic
     @Column(name = "private_key")
     private String privateKey;

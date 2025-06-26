@@ -26,4 +26,8 @@ public class Share {
     @Column(name = "user_id")
     private String userId;
 
+    @Basic
+    @Column(name = "access_token")
+    private String accessToken;
+
 }

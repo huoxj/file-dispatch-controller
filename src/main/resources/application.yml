@@ -6,3 +6,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create
+
+fdc:
+  file-storage:
+    type: local
+    local-temp-path: ${USERPROFILE}/.fdc/temp
