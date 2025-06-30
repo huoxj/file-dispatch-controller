@@ -20,7 +20,7 @@ public class ShareUtil {
     /**
      * 生成一个用户对某文件的分享权，
      * 将用户 id 和离线口令拼接 + MD5 哈希，
-     * 并用此结果即 key 对 sk 进行加密与 base64 编码后的结果。
+     * 并用此结果即 key 对 ok|sk 进行加密与 base64 编码后的结果。
      * 同时，将离线口令存入数据库中。
      * @return 加密并编码后的 sk
      */
@@ -34,10 +34,19 @@ public class ShareUtil {
         share.setAccessToken(accessToken);
         shareRepository.save(share);
 
+        // 拼接 userId 和 accessToken 作为加密的 key
         String concat = userId + "|" + accessToken;
         byte[] key = CryptoUtil.md5(concat);
+        System.out.println("[Debug] 用户 " + userId + "的 AccessToken : " + accessToken);
+        System.out.println("[Debug] 用户 " + userId + "的 Share key : " + CryptoUtil.hexEncode(key));
 
-        return CryptoUtil.encrypt(sk, key);
+        // 拼接 sk 和 SHA-256 校验码的前 4 字节
+        byte[] skWithChecksum = new byte[sk.length + 4];
+        System.arraycopy(sk, 0, skWithChecksum, 0, sk.length);
+        byte[] checksum = CryptoUtil.sha256(sk);
+        System.arraycopy(checksum, 0, skWithChecksum, sk.length, 4);
+
+        return CryptoUtil.encrypt(skWithChecksum, key);
     }
 
     public List<String> generateShares(File file, List<String> userIds, byte[] sk) throws Exception {

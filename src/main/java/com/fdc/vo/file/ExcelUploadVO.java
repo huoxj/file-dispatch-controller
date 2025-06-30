@@ -30,6 +30,7 @@ public class ExcelUploadVO {
         private Boolean allowCopy;
         // 是否允许打印
         private Boolean allowPrint;
+        // TODO: 是否允许保存用户名密码
         // 水印
         private Watermark watermark;
 

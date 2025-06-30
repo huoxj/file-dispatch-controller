@@ -34,12 +34,9 @@ public class ExcelUtil {
         Workbook templateWb = WorkbookFactory.create(templateStream);
         Workbook dataWb = WorkbookFactory.create(data);
 
-        // 创建隐藏 Sheets
-        Sheet configSheet = templateWb.createSheet("Config"),
-            shareSheet = templateWb.createSheet("Share");
-        //TODO 记得改成 VeryHidden
-        templateWb.setSheetVisibility(templateWb.getSheetIndex(configSheet), SheetVisibility.VERY_HIDDEN);
-        templateWb.setSheetVisibility(templateWb.getSheetIndex(shareSheet), SheetVisibility.VERY_HIDDEN);
+        // 获取隐藏 Sheets
+        Sheet configSheet = templateWb.getSheet("Config"),
+            shareSheet = templateWb.getSheet("Share");
 
         // 写入工作表数据
         String dataSerialized = serializeWorkbook(dataWb);
@@ -73,20 +70,11 @@ public class ExcelUtil {
     /**
      * <p>
      * 将 Workbook 序列化为原始字符串。序列化规则为：
-     * <li>Sheet 间用 \f\f\f 分隔，
-     * <li>每个 Sheet 的第一行是 Sheet 名称，
-     * <li>每个 Sheet 的后续行是该 Sheet 的行数据，
-     * <li>每行数据用 \f\f 分隔，
+     * <li>Sheet 间用 \f\f 分隔，
+     * <li>每个 Sheet 中第一个元素是 Sheet 名称，
+     * <li>每个 Sheet 的后续元素是该 Sheet 的单元格数据，
      * <li>每个单元格数据用 \f 分隔。
-     * <li>单元格数据和格式用 @#@ 分隔
-     *
-     * <p>
-     * 结构概览：<br>
-     * Sheet1Name \f\f fmt1@#@cell1 \f fmt2@#@cell2 \f\f row2Data ...
-     * \f\f\f
-     * Sheet2Name row1Data ...
-     * \f\f\f
-     * ...
+     * <li>单元格的位置、数据和格式用 @#@ 分隔
      *
      * @param workbook 要序列化的 Workbook
      * @return 序列化后的字符串
@@ -97,23 +85,20 @@ public class ExcelUtil {
         List<String> sheets = new ArrayList<>();
 
         for (Sheet sheet: workbook) {
-            List<String> lines = new ArrayList<>();
-
-            // Sheet 块中第一行为 sheet 名称
-            lines.add(sheet.getSheetName());
-            // 剩余行为 sheet 各行数据
+            List<String> cells = new ArrayList<>();
+            cells.add(sheet.getSheetName()); // Sheet 名称为第一个元素
             for (Row row: sheet) {
-                List<String> cells = new ArrayList<>();
                 for (Cell cell: row) {
-                    String fmt = cell.getCellStyle() != null ? cell.getCellStyle().getDataFormatString() : "";
-                    String data = fmtter.formatCellValue(cell);
-                    cells.add(fmt + "@#@" + data);
+                    int cellRowIdx = cell.getRowIndex(),
+                        cellColIdx = cell.getColumnIndex();
+                    String cellValue = fmtter.formatCellValue(cell),
+                        cellFormat = cell.getCellStyle() != null ? cell.getCellStyle().getDataFormatString() : "";
+                    cells.add(cellRowIdx + "@#@" + cellColIdx + "@#@" + cellFormat + "@#@" + cellValue);
                 }
-                lines.add(String.join("\f", cells));
             }
-            sheets.add(String.join("\f\f", lines));
+            sheets.add(String.join("\f", cells));
         }
-        return String.join("\f\f\f", sheets);
+        return String.join("\f\f", sheets);
     }
 
     private static void addKVtoSheet(Sheet configSheet, String key, int value) {
