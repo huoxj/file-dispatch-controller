@@ -37,8 +37,8 @@ public class ShareUtil {
         // 拼接 userId 和 accessToken 作为加密的 key
         String concat = userId + "|" + accessToken;
         byte[] key = CryptoUtil.md5(concat);
-        System.out.println("[Debug] 用户 " + userId + "的 AccessToken : " + accessToken);
-        System.out.println("[Debug] 用户 " + userId + "的 Share key : " + CryptoUtil.hexEncode(key));
+        // System.out.println("[Debug] 用户 " + userId + "的 AccessToken : " + accessToken);
+        // System.out.println("[Debug] 用户 " + userId + "的 Share key : " + CryptoUtil.hexEncode(key));
 
         // 拼接 sk 和 SHA-256 校验码的前 4 字节
         byte[] skWithChecksum = new byte[sk.length + 4];

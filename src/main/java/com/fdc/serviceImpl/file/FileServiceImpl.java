@@ -56,7 +56,7 @@ public class FileServiceImpl implements FileService {
         // 随机生成 AES-128 密钥
         byte[] sk = new byte[16];
         new SecureRandom().nextBytes(sk);
-        System.out.println("[Debug] 文件密钥: " + CryptoUtil.hexEncode(sk));
+        // System.out.println("[Debug] 文件密钥: " + CryptoUtil.hexEncode(sk));
         // 生成文件实体
         File fileEntity = new File();
         fileEntity.setCreateTime(new Date());
