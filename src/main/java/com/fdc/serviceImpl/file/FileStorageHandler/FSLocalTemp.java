@@ -22,7 +22,8 @@ public class FSLocalTemp implements FSHandler{
     @Value("${fdc.file-storage.local-temp-path}")
     private String localTempPath;
 
-    private final HttpServletRequest request;
+    @Value("${fdc.base-url}")
+    private String requestBaseUrl;
 
     @Override
     public String storeFile(InputStream fileStream, String fileName) throws Exception {
@@ -44,7 +45,6 @@ public class FSLocalTemp implements FSHandler{
             }
         }
 
-        String requestBaseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
         return requestBaseUrl + "/api/file/download/" + fileName;
     }
 

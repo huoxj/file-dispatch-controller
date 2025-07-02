@@ -1,7 +1,6 @@
 package com.fdc.serviceImpl.file;
 
 import com.fdc.exception.BusinessException;
-import com.fdc.exception.FileNotFoundException;
 import com.fdc.po.File;
 import com.fdc.serviceImpl.share.ShareUtil;
 import com.fdc.util.CryptoUtil;
@@ -28,6 +27,9 @@ public class ExcelUtil {
     @Value("classpath:excel_template.xlsm")
     private Resource excelTemplateResource;
 
+    @Value("${fdc.base-url}")
+    private String requestBaseUrl;
+
     public InputStream applyDataToTemplate(InputStream data, byte[] sk, File file, ExcelUploadVO config) throws Exception {
         InputStream templateStream = excelTemplateResource.getInputStream();
 
@@ -44,7 +46,7 @@ public class ExcelUtil {
         addKVtoSheet(configSheet, "data", dataEncrypted);
 
         // 写入配置数据
-        fillConfig(configSheet, config.getExcelConfig());
+        fillConfig(file.getId(), configSheet, config.getExcelConfig());
 
         // 写入每个分享用户加密的 Secret Keys
         List<String> encryptedSks = shareUtil.generateShares(file, config.getUserIds(), sk);
@@ -134,9 +136,11 @@ public class ExcelUtil {
         valueCell.setCellValue(value);
     }
 
-    private static void fillConfig(Sheet configSheet, ExcelUploadVO.ExcelConfig config) {
+    private void fillConfig(String fileId, Sheet configSheet, ExcelUploadVO.ExcelConfig config) {
         if (config == null) return;
 
+        addKVtoSheet(configSheet, "id", fileId);
+        addKVtoSheet(configSheet, "url", requestBaseUrl);
         addKVtoSheet(configSheet, "open", config.getOpenLimit());
         addKVtoSheet(configSheet, "start", config.getStartTime());
         addKVtoSheet(configSheet, "end", config.getEndTime());
@@ -144,6 +148,7 @@ public class ExcelUtil {
         addKVtoSheet(configSheet, "saveas", config.getAllowSaveAs());
         addKVtoSheet(configSheet, "copy", config.getAllowCopy());
         addKVtoSheet(configSheet, "print", config.getAllowPrint());
+        addKVtoSheet(configSheet, "save_token", config.getAllowSaveToken());
 
         // 水印配置
         if (config.getWatermark() != null) {

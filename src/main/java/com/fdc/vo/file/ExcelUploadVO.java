@@ -1,7 +1,6 @@
 package com.fdc.vo.file;
 
 import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
@@ -30,7 +29,8 @@ public class ExcelUploadVO {
         private Boolean allowCopy;
         // 是否允许打印
         private Boolean allowPrint;
-        // TODO: 是否允许保存用户名密码
+        // 是否允许保存用户名密码
+        private Boolean allowSaveToken;
         // 水印
         private Watermark watermark;
 
