@@ -16,18 +16,25 @@ public interface FSHandler {
      * @param fileStream 输入流，包含要存储的文件内容。
      * @param fileName 文件标识符，用于唯一标识存储的文件，
      *               推荐将文件记录到数据库后获取自动生成
-     *               的 UUID 作为 fileId。
+     *               的 UUID 作为 basename，并拼接扩展名。
      * @return 存储后的文件 url，可直接用于下载文件。
-     * @throws Exception 如果存储过程中发生错误。
      */
-    String storeFile(InputStream fileStream, String fileName) throws Exception;
+    String storeFile(InputStream fileStream, String fileName);
 
     /**
      * 删除指定的文件。
      *
      * @param fileName 文件标识符，用于唯一标识要删除的文件。
-     * @throws Exception 如果删除过程中发生错误。
+     * @ 如果删除过程中发生错误。
      */
-    void deleteFile(String fileName) throws Exception;
+    void deleteFile(String fileName);
 
+    /**
+     * 获取指定文件的输入流。
+     *
+     * @param fileName 文件标识符，用于唯一标识要获取的文件。
+     * @return 文件的输入流，可用于读取文件内容。
+     * @ 如果获取文件流过程中发生错误。
+     */
+    InputStream getFileStream(String fileName);
 }

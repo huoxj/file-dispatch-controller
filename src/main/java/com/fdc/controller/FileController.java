@@ -1,5 +1,6 @@
 package com.fdc.controller;
 
+import com.fdc.po.File;
 import com.fdc.service.FileService;
 import com.fdc.util.TimeUtil;
 import com.fdc.vo.ResponseVO;
@@ -32,7 +33,7 @@ public class FileController {
      */
     @PostMapping("/excel")
     public ResponseVO<String> uploadExcelFile(@RequestPart("file") MultipartFile file,
-                                              @RequestPart("config") ExcelUploadVO config) throws Exception {
+                                              @RequestPart("config") ExcelUploadVO config) {
         return ResponseVO.buildSuccess(fileService.uploadExcelFile(file, config));
     }
 
@@ -45,7 +46,7 @@ public class FileController {
      */
     @PostMapping("/other")
     public ResponseVO<String> uploadOtherFiles(@RequestPart("files") List<MultipartFile> files,
-                                               @RequestPart("config") OtherUploadVO config) throws Exception {
+                                               @RequestPart("config") OtherUploadVO config) {
         return ResponseVO.buildSuccess(fileService.uploadOtherFiles(files, config));
     }
 
@@ -58,8 +59,14 @@ public class FileController {
      * @return 返回文件
      */
     @GetMapping("/download/{fileId}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable String fileId) throws Exception {
+    public ResponseEntity<Resource> downloadFile(@PathVariable String fileId) {
         return fileService.downloadFile(fileId);
+    }
+
+    @GetMapping("/{fileId}")
+    public ResponseVO<FileVO> getFileById(@PathVariable String fileId) {
+        File file = fileService.getFileById(fileId);
+        return ResponseVO.buildSuccess(file.toVO());
     }
 
     @GetMapping("/list")

@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @ResponseBody
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(value = Exception.class)
-    public ResponseVO<Void> handleException(Exception e) {
+    @ExceptionHandler(value = RuntimeException.class)
+    public ResponseVO<Void> handleRuntimeException(RuntimeException e) {
         e.printStackTrace();
         return new ResponseVO<>("500", "Internal Server Error", null);
     }

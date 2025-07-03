@@ -1,6 +1,7 @@
 package com.fdc.serviceImpl.file;
 
 import com.fdc.exception.BusinessException;
+import com.fdc.exception.FileIOException;
 import com.fdc.exception.FileNotFoundException;
 import com.fdc.po.File;
 import com.fdc.repository.FileRepository;
@@ -27,7 +28,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.security.SecureRandom;
 import java.util.Date;
@@ -52,8 +55,15 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public String uploadExcelFile(MultipartFile file, ExcelUploadVO excelUploadVO) throws Exception {
-        InputStream data = file.getInputStream();
+    public String uploadExcelFile(MultipartFile file, ExcelUploadVO excelUploadVO){
+
+        InputStream data;
+
+        try {
+            data = file.getInputStream();
+        } catch (IOException e) {
+            throw new FileIOException("MultipartFile 读取失败: " + file.getOriginalFilename());
+        }
 
         // 随机生成 AES-128 密钥
         byte[] sk = new byte[16];
@@ -71,15 +81,23 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public String uploadOtherFiles(List<MultipartFile> files, OtherUploadVO otherUploadVO) throws Exception {
+    public String uploadOtherFiles(List<MultipartFile> files, OtherUploadVO otherUploadVO) {
 
-        java.io.File tempZip = java.io.File.createTempFile("upload-" + System.currentTimeMillis(), ".zip");
+        java.io.File tempZip;
+
+
+        try {
+            tempZip = java.io.File.createTempFile("upload-" + System.currentTimeMillis(), ".zip");
+        } catch (IOException e) {
+            throw new FileIOException("创建临时 ZIP 文件失败: " + e.getMessage());
+        }
 
         ZipParameters zipParams = new ZipParameters();
         zipParams.setCompressionMethod(CompressionMethod.DEFLATE);
         zipParams.setEncryptFiles(true);
         zipParams.setEncryptionMethod(EncryptionMethod.AES);
 
+        InputStream zipStream;
         try (ZipFile zipFile = new ZipFile(tempZip, otherUploadVO.getPassword().toCharArray())) {
             for (MultipartFile file : files) {
                 java.io.File tempFile = java.io.File.createTempFile("upload-" + System.currentTimeMillis(), file.getOriginalFilename());
@@ -87,16 +105,20 @@ public class FileServiceImpl implements FileService {
                 zipParams.setFileNameInZip(file.getOriginalFilename());
                 zipFile.addFile(tempFile, zipParams);
             }
+            zipStream = Files.newInputStream(tempZip.toPath());
+        } catch (IOException e) {
+            throw new FileIOException("打包文件到 ZIP 失败: " + e.getMessage());
         }
 
         File fileEntity = new File();
         fileEntity.setCreateTime(new Date());
         fileEntity.setPrivateKey(CryptoUtil.base64Encode(otherUploadVO.getPassword().getBytes()));
-        return saveAndPersistFile(Files.newInputStream(tempZip.toPath()), "zip", fileEntity);
+
+        return saveAndPersistFile(zipStream, "zip", fileEntity);
     }
 
     // 入库与持久化
-    private String saveAndPersistFile(InputStream fileStream, String fileExt, File fileEntity) throws Exception {
+    private String saveAndPersistFile(InputStream fileStream, String fileExt, File fileEntity) {
         File savedFileEntity = fileEntity.getId() == null ? fileRepository.save(fileEntity) : fileEntity;
         String url;
         try {
@@ -111,7 +133,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public ResponseEntity<Resource> downloadFile(String fileId) throws Exception {
+    public ResponseEntity<Resource> downloadFile(String fileId) {
         if (!(fsHandler instanceof FSLocalTemp)) {
             throw new BusinessException("500", "服务端当前存储方式不支持此下载文件接口");
         }
@@ -124,7 +146,12 @@ public class FileServiceImpl implements FileService {
         if (!file.exists()) {
             throw new FileNotFoundException("文件不存在: " + fileId);
         }
-        Resource resource = new UrlResource(file.toURI());
+        Resource resource;
+        try {
+            resource = new UrlResource(file.toURI());
+        } catch (MalformedURLException e) {
+            throw new FileNotFoundException("URL Resource 创建失败: " + e.getMessage());
+        }
         return ResponseEntity.ok()
             .contentType(MediaType.APPLICATION_OCTET_STREAM)
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
@@ -135,5 +162,22 @@ public class FileServiceImpl implements FileService {
     public List<FileVO> listFiles(Date startTime, Date endTime) {
         List<File> files = fileRepository.findAllByCreateTimeBetween(startTime, endTime);
         return files.stream().map(File::toVO).collect(Collectors.toList());
+    }
+
+    @Override
+    public File getFileById(String fileId) {
+        File file = fileRepository.findById(fileId)
+            .orElseThrow(() -> new FileNotFoundException("文件不存在: " + fileId));
+        return file;
+    }
+
+    @Override
+    public InputStream getXlsmStream(String fileId) {
+        return fsHandler.getFileStream(fileId + ".xlsm");
+    }
+
+    @Override
+    public void updateFile(String fileId, InputStream newData) {
+        fsHandler.storeFile(newData, fileId + ".xlsm");
     }
 }

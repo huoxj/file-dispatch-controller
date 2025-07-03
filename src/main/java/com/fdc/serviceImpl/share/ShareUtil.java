@@ -24,7 +24,7 @@ public class ShareUtil {
      * 同时，将离线口令存入数据库中。
      * @return 加密并编码后的 sk
      */
-    public String generateShare(File file, String userId, byte[] sk) throws Exception {
+    public String generateShare(File file, String userId, byte[] sk) {
         String accessToken = RandomStringUtils.randomAlphanumeric(16);
 
         // 创建 Share 实例
@@ -49,7 +49,7 @@ public class ShareUtil {
         return CryptoUtil.encrypt(skWithChecksum, key);
     }
 
-    public List<String> generateShares(File file, List<String> userIds, byte[] sk) throws Exception {
+    public List<String> generateShares(File file, List<String> userIds, byte[] sk) {
         List<String> encryptedSks = new ArrayList<>();
         for (String userId : userIds) {
             String encryptedSk = generateShare(file, userId, sk);

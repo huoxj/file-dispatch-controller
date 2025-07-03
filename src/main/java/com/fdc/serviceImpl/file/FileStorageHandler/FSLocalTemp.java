@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -26,7 +27,7 @@ public class FSLocalTemp implements FSHandler{
     private String requestBaseUrl;
 
     @Override
-    public String storeFile(InputStream fileStream, String fileName) throws Exception {
+    public String storeFile(InputStream fileStream, String fileName) {
         String filePath = localTempPath + "/" + fileName;
         File file = new File(filePath);
         // 保证父目录存在
@@ -43,13 +44,15 @@ public class FSLocalTemp implements FSHandler{
             while ((bytesRead = fileStream.read(buffer)) != -1) {
                 outputStream.write(buffer, 0, bytesRead);
             }
+        } catch (Exception e) {
+            throw new FSException("存储文件失败: " + fileName);
         }
 
         return requestBaseUrl + "/api/file/download/" + fileName;
     }
 
     @Override
-    public void deleteFile(String fileName) throws Exception {
+    public void deleteFile(String fileName) {
         String filePath = localTempPath + "/" + fileName;
         File file = new File(filePath);
         if (file.exists()) {
@@ -59,16 +62,30 @@ public class FSLocalTemp implements FSHandler{
         }
     }
 
-    public String getFilePathByFileId(String fileId) throws Exception {
+    @Override
+    public InputStream getFileStream(String fileName) {
+        String filePath = localTempPath + "/" + fileName;
+        Path path = Paths.get(filePath);
+
+        InputStream is;
+        try {
+            is = Files.newInputStream(path);
+        } catch (IOException e) {
+            throw new FSException("获取文件流失败: " + fileName);
+        }
+        return is;
+    }
+
+    public String getFilePathByFileId(String fileId) {
         try (Stream<Path> files = Files.list(Paths.get(localTempPath))) {
             return files
                 .filter(Files::isRegularFile)
-                .filter(path -> {
-                    return path.getFileName().toString().startsWith(fileId);
-                })
+                .filter(path -> path.getFileName().toString().startsWith(fileId))
                 .findAny()
                 .map(Path::toString)
                 .orElseThrow(() -> new FileNotFoundException("本地存储未找到文件: " + fileId));
+        } catch (IOException e) {
+            throw new FSException("获取文件路径失败: " + fileId);
         }
     }
 }
