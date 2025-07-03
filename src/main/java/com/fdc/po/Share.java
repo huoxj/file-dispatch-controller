@@ -1,5 +1,6 @@
 package com.fdc.po;
 
+import com.fdc.vo.share.ShareVO;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
@@ -30,4 +31,12 @@ public class Share {
     @Column(name = "access_token")
     private String accessToken;
 
+    public ShareVO toVO() {
+        ShareVO shareVO = new ShareVO();
+        shareVO.setId(this.id);
+        shareVO.setFileId(this.file != null ? this.file.getId() : null);
+        shareVO.setUserId(this.userId);
+        shareVO.setAccessToken(this.accessToken);
+        return shareVO;
+    }
 }

@@ -1,15 +1,19 @@
 package com.fdc.controller;
 
 import com.fdc.service.FileService;
+import com.fdc.util.TimeUtil;
 import com.fdc.vo.ResponseVO;
 import com.fdc.vo.file.ExcelUploadVO;
+import com.fdc.vo.file.FileVO;
 import com.fdc.vo.file.OtherUploadVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -56,6 +60,18 @@ public class FileController {
     @GetMapping("/download/{fileId}")
     public ResponseEntity<Resource> downloadFile(@PathVariable String fileId) throws Exception {
         return fileService.downloadFile(fileId);
+    }
+
+    @GetMapping("/list")
+    public ResponseVO<List<FileVO>> listFiles(
+        @RequestParam(value = "startTime", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
+        @RequestParam(value = "endTime", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime
+    ) {
+        List<FileVO> files = fileService.listFiles(
+            TimeUtil.localDateTimeToDate(startTime),
+            TimeUtil.localDateTimeToDate(endTime)
+        );
+        return ResponseVO.buildSuccess(files);
     }
 
 }

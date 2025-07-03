@@ -1,5 +1,6 @@
 package com.fdc.po;
 
+import com.fdc.vo.file.FileVO;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
@@ -33,4 +34,12 @@ public class File {
     @Column(name = "create_time")
     private Date createTime;
 
+    public FileVO toVO() {
+        FileVO fileVO = new FileVO();
+        fileVO.setId(this.id);
+        fileVO.setUrl(this.url);
+        fileVO.setPrivateKey(this.privateKey);
+        fileVO.setCreateTime(this.createTime);
+        return fileVO;
+    }
 }

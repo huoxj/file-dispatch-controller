@@ -9,6 +9,7 @@ import com.fdc.serviceImpl.file.FileStorageHandler.FSHandler;
 import com.fdc.serviceImpl.file.FileStorageHandler.FSLocalTemp;
 import com.fdc.util.CryptoUtil;
 import com.fdc.vo.file.ExcelUploadVO;
+import com.fdc.vo.file.FileVO;
 import com.fdc.vo.file.OtherUploadVO;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.model.ZipParameters;
@@ -31,6 +32,7 @@ import java.nio.file.Files;
 import java.security.SecureRandom;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FileServiceImpl implements FileService {
@@ -127,5 +129,11 @@ public class FileServiceImpl implements FileService {
             .contentType(MediaType.APPLICATION_OCTET_STREAM)
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
             .body(resource);
+    }
+
+    @Override
+    public List<FileVO> listFiles(Date startTime, Date endTime) {
+        List<File> files = fileRepository.findAllByCreateTimeBetween(startTime, endTime);
+        return files.stream().map(File::toVO).collect(Collectors.toList());
     }
 }

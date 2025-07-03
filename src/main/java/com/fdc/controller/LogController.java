@@ -1,6 +1,7 @@
 package com.fdc.controller;
 
 import com.fdc.service.LogService;
+import com.fdc.util.TimeUtil;
 import com.fdc.vo.ResponseVO;
 import com.fdc.vo.log.LogType;
 import com.fdc.vo.log.LogVO;
@@ -38,17 +39,19 @@ public class LogController {
      * @return 日志列表
      */
     @GetMapping()
-    public ResponseVO<List<LogVO>> queryLogs(@RequestParam(value = "fileIds", required = false) List<String> fileIds,
-                                             @RequestParam(value = "userIds", required = false) List<String> userIds,
-                                             @RequestParam(value = "types", required = false) List<LogType> types,
-                                             @RequestParam(value = "ips", required = false) List<String> ips,
-                                             @RequestParam(value = "startTime", required = false)
-                                                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
-                                             @RequestParam(value = "endTime", required = false)
-                                                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime) {
-        List<LogVO> logs = logService.queryLogs(fileIds, userIds, types, ips,
-                startTime != null ? Date.from(startTime.atZone(java.time.ZoneId.systemDefault()).toInstant()) : null,
-                endTime != null ? Date.from(endTime.atZone(java.time.ZoneId.systemDefault()).toInstant()) : null);
+    public ResponseVO<List<LogVO>> queryLogs(
+        @RequestParam(value = "fileIds", required = false) List<String> fileIds,
+        @RequestParam(value = "userIds", required = false) List<String> userIds,
+        @RequestParam(value = "types", required = false) List<LogType> types,
+        @RequestParam(value = "ips", required = false) List<String> ips,
+        @RequestParam(value = "startTime", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
+        @RequestParam(value = "endTime", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime
+    ) {
+        List<LogVO> logs = logService.queryLogs(
+            fileIds, userIds, types, ips,
+            TimeUtil.localDateTimeToDate(startTime),
+            TimeUtil.localDateTimeToDate(endTime)
+        );
         return ResponseVO.buildSuccess(logs);
     }
 }
