@@ -20,6 +20,8 @@ public class VBALogController {
 
     /**
      * VBA 行为日志上传
+     * @param request HTTP 请求对象，用于获取客户端 IP
+     * @param logVO 日志信息
      */
     @PostMapping()
     public void log(HttpServletRequest request, @RequestBody LogVO logVO) {

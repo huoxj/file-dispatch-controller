@@ -63,12 +63,25 @@ public class FileController {
         return fileService.downloadFile(fileId);
     }
 
+    /**
+     * 获取文件信息
+     *
+     * @param fileId 文件唯一标识符
+     * @return 返回文件信息，包括文件 id、url、密钥和创建时间
+     */
     @GetMapping("/{fileId}")
     public ResponseVO<FileVO> getFileById(@PathVariable String fileId) {
         File file = fileService.getFileById(fileId);
         return ResponseVO.buildSuccess(file.toVO());
     }
 
+    /**
+     * 列出指定时间范围内的文件信息
+     *
+     * @param startTime 起始时间（可选）
+     * @param endTime   结束时间（可选）
+     * @return 返回文件信息列表
+     */
     @GetMapping("/list")
     public ResponseVO<List<FileVO>> listFiles(
         @RequestParam(value = "startTime", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
