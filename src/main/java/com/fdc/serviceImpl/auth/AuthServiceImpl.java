@@ -6,6 +6,7 @@ import com.fdc.po.File;
 import com.fdc.repository.FileRepository;
 import com.fdc.repository.ShareRepository;
 import com.fdc.service.AuthService;
+import com.fdc.service.FileService;
 import com.fdc.serviceImpl.auth.onlineAuthUtil.OnlineAuthAdapter;
 import com.fdc.vo.auth.OfflineLoginFormVO;
 import com.fdc.vo.auth.OnlineLoginFormVO;
@@ -23,7 +24,7 @@ public class AuthServiceImpl implements AuthService {
     private OnlineAuthAdapter onlineAuthAdapter;
 
     @Autowired
-    private FileRepository fileRepository;
+    private FileService fileService;
 
     @Autowired
     private ShareRepository shareRepository;
@@ -39,12 +40,9 @@ public class AuthServiceImpl implements AuthService {
         }
 
         // 获取文件密钥
-        Optional<File> fileOptional = fileRepository.findById(fileId);
-        if (!fileOptional.isPresent()) {
-            throw new FileNotFoundException("文件不存在");
-        }
+        File file = fileService.getFileById(fileId);
 
-        return fileOptional.get().getPrivateKey();
+        return file.getPrivateKey();
     }
 
     @Override
