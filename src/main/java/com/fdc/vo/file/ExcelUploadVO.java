@@ -2,6 +2,7 @@ package com.fdc.vo.file;
 
 import lombok.Data;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -16,32 +17,32 @@ public class ExcelUploadVO {
     @Data
     public static class ExcelConfig {
         // 打开次数限制
-        private Integer openLimit;
+        private Integer openLimit = 99999;
         // 开始访问时间
-        private Date startTime;
+        private Date startTime = new Date(0L);
         // 结束访问时间
-        private Date endTime;
+        private Date endTime = Date.from(Instant.parse("2099-12-31T23:59:59Z"));
         // 是否允许编辑
-        private Boolean allowEdit;
+        private Boolean allowEdit = false;
         // 是否允许另存为
-        private Boolean allowSaveAs;
+        private Boolean allowSaveAs = false;
         // 是否允许拷贝
-        private Boolean allowCopy;
+        private Boolean allowCopy = false;
         // 是否允许打印
-        private Boolean allowPrint;
+        private Boolean allowPrint = false;
         // 是否允许保存用户名密码
-        private Boolean allowSaveToken;
+        private Boolean allowSaveToken = false;
         // 水印
-        private Watermark watermark;
+        private Watermark watermark = new Watermark();
 
         @Data
         public static class Watermark {
             // 水印模板
-            private String pattern;
+            private String pattern = "";
             // 水印字号
-            private Integer fontSize;
+            private Integer fontSize = 0;
             // 水印RGBA
-            private String rgba;
+            private String rgba = "0,0,0,0";
         }
     }
 
