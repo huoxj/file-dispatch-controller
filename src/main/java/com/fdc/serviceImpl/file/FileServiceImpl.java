@@ -8,6 +8,7 @@ import com.fdc.repository.FileRepository;
 import com.fdc.service.FileService;
 import com.fdc.serviceImpl.file.FileStorageHandler.FSHandler;
 import com.fdc.serviceImpl.file.FileStorageHandler.FSLocalTemp;
+import com.fdc.serviceImpl.file.excelUtils.TemplateProcesser;
 import com.fdc.util.CryptoUtil;
 import com.fdc.vo.file.ExcelUploadVO;
 import com.fdc.vo.file.FileVO;
@@ -44,7 +45,7 @@ public class FileServiceImpl implements FileService {
     FileRepository fileRepository;
 
     @Autowired
-    ExcelUtil excelProcesser;
+    TemplateProcesser excelProcesser;
 
     FSHandler fsHandler;
 

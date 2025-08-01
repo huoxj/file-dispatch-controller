@@ -6,7 +6,7 @@ import com.fdc.po.Share;
 import com.fdc.repository.ShareRepository;
 import com.fdc.service.FileService;
 import com.fdc.service.ShareService;
-import com.fdc.serviceImpl.file.ExcelUtil;
+import com.fdc.serviceImpl.file.excelUtils.TemplateProcesser;
 import com.fdc.util.CryptoUtil;
 import com.fdc.vo.share.ShareVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ public class ShareServiceImpl implements ShareService {
     ShareUtil shareUtil;
 
     @Autowired
-    ExcelUtil excelUtil;
+    TemplateProcesser excelUtil;
 
     @Autowired
     private FileService fileService;
